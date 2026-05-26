@@ -106,7 +106,7 @@ export async function generateCaseStudyContent(requirement: string): Promise<Cas
   `;
 
   const response = await withRetry(() => ai.models.generateContent({
-    model: "gemini-flash-latest",
+    model: "gemini-3.1-flash-lite",
     contents: prompt,
     config: {
       responseMimeType: "application/json",

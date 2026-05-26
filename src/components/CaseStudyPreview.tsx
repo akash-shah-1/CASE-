@@ -331,7 +331,7 @@ export function CaseStudyPreview({ data, onChangeData, onDownload, onReset, isDo
       {renderPageHeader(1)}
       
       {/* Cover Logo Header */}
-      <div className="flex flex-col items-center justify-center my-6 text-center bg-slate-50/50 py-8 rounded-2xl border border-dotted border-slate-200">
+      <div className="flex flex-col items-center justify-center my-6 text-center bg-slate-50/50 py-8 rounded-1xl border border-dotted border-slate-200">
         <CISLogo className="h-16 w-auto mb-4" />
         <p className="text-[10px] font-black tracking-[0.3em] text-[#F25B24] uppercase">TECHNICAL CAPABILITY BULLETIN</p>
         <span className="w-12 h-1 bg-[#023D4A] mt-3 rounded-full"></span>
@@ -699,7 +699,7 @@ export function CaseStudyPreview({ data, onChangeData, onDownload, onReset, isDo
 
       {/* Results Achieved */}
       <div className="mt-auto">
-        <div className="bg-[#023D4A] text-white p-4 rounded-2xl relative overflow-hidden shadow-md">
+        <div className="bg-[#023D4A] text-white p-4 rounded-1xl relative overflow-hidden shadow-md">
           <div className="absolute -bottom-8 -right-8 w-24 h-24 bg-white/10 rounded-full"></div>
           <div className="flex items-center gap-2 mb-2">
             <ShieldCheck size={16} className="text-[#F25B24]" />
@@ -789,7 +789,7 @@ export function CaseStudyPreview({ data, onChangeData, onDownload, onReset, isDo
           <div className="flex flex-col items-center gap-6 w-full max-w-[760px] my-auto py-2">
             
             {/* Slider Sheet Wrapper - enforces Standard A4 Aspect Ratio */}
-            <div className="w-full aspect-[1/1.414] min-h-[700px] md:min-h-[900px] bg-white text-slate-800 shadow-2xl rounded-2xl p-6 md:p-10 relative flex flex-col transition-all overflow-hidden border border-slate-200">
+            <div className="w-full aspect-[1/1.414] min-h-[700px] md:min-h-[900px] bg-white text-slate-800 shadow-2xl rounded-1xl p-6 md:p-10 relative flex flex-col transition-all overflow-hidden border border-slate-200">
               <AnimatePresence mode="wait">
                 <motion.div
                   key={activePage}
@@ -835,16 +835,16 @@ export function CaseStudyPreview({ data, onChangeData, onDownload, onReset, isDo
         ) : (
           /* Scroll Mode stacked sheets layout */
           <div ref={containerRef} className="flex flex-col items-center gap-8 w-full max-w-[760px] py-4">
-            <div className="w-full aspect-[1/1.414] min-h-[700px] md:min-h-[900px] bg-white text-slate-800 shadow-2xl rounded-2xl p-6 md:p-10 border border-slate-250 flex flex-col">
+            <div className="w-full aspect-[1/1.414] min-h-[700px] md:min-h-[900px] bg-white text-slate-800 shadow-2xl rounded-1xl p-6 md:p-10 border border-slate-250 flex flex-col">
               {renderPage1()}
             </div>
-            <div className="w-full aspect-[1/1.414] min-h-[700px] md:min-h-[900px] bg-white text-slate-800 shadow-2xl rounded-2xl p-6 md:p-10 border border-slate-250 flex flex-col">
+            <div className="w-full aspect-[1/1.414] min-h-[700px] md:min-h-[900px] bg-white text-slate-800 shadow-2xl rounded-1xl p-6 md:p-10 border border-slate-250 flex flex-col">
               {renderPage2()}
             </div>
-            <div className="w-full aspect-[1/1.414] min-h-[700px] md:min-h-[900px] bg-white text-slate-800 shadow-2xl rounded-2xl p-6 md:p-10 border border-slate-250 flex flex-col">
+            <div className="w-full aspect-[1/1.414] min-h-[700px] md:min-h-[900px] bg-white text-slate-800 shadow-2xl rounded-1xl p-6 md:p-10 border border-slate-250 flex flex-col">
               {renderPage3()}
             </div>
-            <div className="w-full aspect-[1/1.414] min-h-[700px] md:min-h-[900px] bg-white text-slate-800 shadow-2xl rounded-2xl p-6 md:p-10 border border-slate-250 flex flex-col">
+            <div className="w-full aspect-[1/1.414] min-h-[700px] md:min-h-[900px] bg-white text-slate-800 shadow-2xl rounded-1xl p-6 md:p-10 border border-slate-250 flex flex-col">
               {renderPage4()}
             </div>
           </div>

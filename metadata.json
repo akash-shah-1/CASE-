@@ -1,0 +1,6 @@
+{
+  "name": "CIS Case Study Creator",
+  "description": "Generate professional software case studies in Word format based on client requirements using Gemini AI.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

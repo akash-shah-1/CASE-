@@ -245,7 +245,7 @@ export default function Home() {
         <div className="px-4 py-3 bg-[#111827] border-b border-[#374151] flex flex-col shrink-0 select-none">
           <div className="flex items-center justify-between mb-2 pb-0.5">
             <div className="flex items-center gap-1.5">
-              <CISLogo className="h-5.5 w-auto" />
+              <CISLogo className="h-5.5 w-auto" light />
               <div className="h-3.5 w-[1px] bg-slate-700"></div>
               <span className="text-[9.5px] font-black text-white uppercase tracking-wider">CIS Co-Pilot Suite</span>
             </div>

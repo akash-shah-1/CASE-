@@ -438,7 +438,7 @@ export function CaseStudyPreview({ data, onChangeData, onDownload, onReset, isDo
 
         <div className="space-y-2.5">
           <div className="text-[9px] font-black text-[#023D4A] uppercase tracking-widest mb-1">KEY TECHNICAL BOTTLENECKS IDENTIFIED:</div>
-          <div className="space-y-2 max-h-[190px] overflow-y-auto pr-1 light-scroll">
+          <div className="space-y-2">
             {data.problem.points.map((point, idx) => (
               <div key={idx} className="flex items-start gap-3 text-xs text-slate-600 bg-slate-50 p-2.5 rounded-lg border border-slate-100 relative group/pitem">
                 <CheckCircle2 size={14} className="text-[#F25B24] mt-0.5 flex-shrink-0" />
@@ -656,7 +656,7 @@ export function CaseStudyPreview({ data, onChangeData, onDownload, onReset, isDo
       {/* Strategic Benefits (Checkmarks) */}
       <div className="mb-4 space-y-2">
         <div className="text-[9px] font-black text-[#023D4A] uppercase tracking-widest mb-1.5">MEASURABLE REVENUE & OPERATIONAL BENEFITS</div>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-2 max-h-[170px] overflow-y-auto pr-1 light-scroll">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
           {data.benefits.map((b, i) => (
             <div key={i} className="flex items-start gap-2 text-xs py-1.5 px-3 bg-[#a8ebd5]/10 rounded-lg border border-[#a8ebd5]/30 relative group/benefit">
               <CheckCircle2 size={13} className="text-emerald-650 mt-1.5 flex-shrink-0" />

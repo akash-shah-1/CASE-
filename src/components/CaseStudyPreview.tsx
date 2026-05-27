@@ -22,64 +22,48 @@ import * as Devicon from 'devicons-react';
 import { CaseStudyData } from '../types';
 import { motion, AnimatePresence } from 'motion/react';
 import { CISLogo } from './CISLogo';
-import html2canvas from 'html2canvas';
-import jsPDF from 'jspdf';
 
-// Tech icon mapping
+// Tech icon mapping — uses keyword scanning so long AI-generated names like
+// "Node.js with TypeScript" still match the right icon
 const getTechIcon = (tech: string): React.ReactNode => {
-  const techLower = tech.toLowerCase();
-  
-  const iconMap: Record<string, React.ReactNode> = {
-    'react': <Devicon.ReactOriginal size={24} />,
-    'typescript': <Devicon.TypescriptOriginal size={24} />,
-    'ts': <Devicon.TypescriptOriginal size={24} />,
-    'node': <Devicon.NodejsLineWordmark size={24} />,
-    'nodejs': <Devicon.NodejsLineWordmark size={24} />,
-    'node.js': <Devicon.NodejsLineWordmark size={24} />,
-    'mongodb': <Devicon.MongodbOriginalWordmark size={24} />,
-    'mongo': <Devicon.MongodbOriginalWordmark size={24} />,
-    'postgresql': <Devicon.PostgresqlOriginalWordmark size={24} />,
-    'postgres': <Devicon.PostgresqlOriginalWordmark size={24} />,
-    'docker': <Devicon.DockerOriginal size={24} />,
-    'redis': <Devicon.RedisPlainWordmark size={24} />,
-    'git': <Devicon.GitOriginal size={24} />,
-    'css': <Devicon.Css3Original size={24} />,
-    'html': <Devicon.Html5Original size={24} />,
-    'javascript': <Devicon.JavascriptOriginal size={24} />,
-    'js': <Devicon.JavascriptOriginal size={24} />,
-    'python': <Devicon.PythonOriginalWordmark size={24} />,
-    'java': <Devicon.JavaOriginal size={24} />,
-    'php': <Devicon.PhpOriginal size={24} />,
-    'laravel': <Devicon.LaravelOriginal size={24} />,
-    'angular': <Devicon.AngularOriginal size={24} />,
-    'vue': <Devicon.VuejsLine size={24} />,
-    'vuejs': <Devicon.VuejsLine size={24} />,
-    'sass': <Devicon.SassOriginal size={24} />,
-    'nginx': <Devicon.NginxOriginal size={24} />,
-    'mysql': <Devicon.MysqlOriginalWordmark size={24} />,
-    'sqlite': <Devicon.SqliteOriginalWordmark size={24} />,
-    '.net': <Devicon.DotNetPlain size={24} />,
-    'dotnet': <Devicon.DotNetPlain size={24} />,
-    'bootstrap': <Devicon.BootstrapOriginalWordmark size={24} />,
-    'tailwind': <Devicon.TailwindcssOriginalWordmark size={24} />,
-    'tailwindcss': <Devicon.TailwindcssOriginalWordmark size={24} />,
-    'express': <Devicon.ExpressOriginal size={24} />,
-    'graphql': <Devicon.GraphqlPlainWordmark size={24} />,
-    'kubernetes': <Devicon.KubernetesLineWordmark size={24} />,
-    'k8s': <Devicon.KubernetesLineWordmark size={24} />,
-    'aws': <Devicon.AmazonwebservicesOriginalWordmark size={24} />,
-    'amazon': <Devicon.AmazonwebservicesOriginalWordmark size={24} />,
-    'amazon web services': <Devicon.AmazonwebservicesOriginalWordmark size={24} />,
-    'azure': <Devicon.AzureOriginal size={24} />,
-    'gcp': <Devicon.GooglecloudOriginalWordmark size={24} />,
-    'google cloud': <Devicon.GooglecloudOriginalWordmark size={24} />,
-    'flask': <Devicon.FlaskOriginalWordmark size={24} />,
-    'django': <Devicon.DjangoPlainWordmark size={24} />,
-    'nextjs': <Devicon.NextjsLineWordmark size={24} />,
-    'next': <Devicon.NextjsLineWordmark size={24} />,
-  };
-  
-  return iconMap[techLower] || <Cpu size={24} />;
+  const t = tech.toLowerCase();
+
+  // Order matters — more specific checks first
+  if (t.includes('next')) return <Devicon.NextjsLineWordmark size={24} />;
+  if (t.includes('react')) return <Devicon.ReactOriginal size={24} />;
+  if (t.includes('vue')) return <Devicon.VuejsLine size={24} />;
+  if (t.includes('angular')) return <Devicon.AngularOriginal size={24} />;
+  if (t.includes('typescript') || t.includes(' ts ') || t === 'ts') return <Devicon.TypescriptOriginal size={24} />;
+  if (t.includes('javascript') || t === 'js') return <Devicon.JavascriptOriginal size={24} />;
+  if (t.includes('node')) return <Devicon.NodejsLineWordmark size={24} />;
+  if (t.includes('python')) return <Devicon.PythonOriginalWordmark size={24} />;
+  if (t.includes('django')) return <Devicon.DjangoPlainWordmark size={24} />;
+  if (t.includes('flask')) return <Devicon.FlaskOriginalWordmark size={24} />;
+  if (t.includes('java') && !t.includes('javascript')) return <Devicon.JavaOriginal size={24} />;
+  if (t.includes('php')) return <Devicon.PhpOriginal size={24} />;
+  if (t.includes('laravel')) return <Devicon.LaravelOriginal size={24} />;
+  if (t.includes('express')) return <Devicon.ExpressOriginal size={24} />;
+  if (t.includes('graphql')) return <Devicon.GraphqlPlainWordmark size={24} />;
+  if (t.includes('mongodb') || t.includes('mongo')) return <Devicon.MongodbOriginalWordmark size={24} />;
+  if (t.includes('postgresql') || t.includes('postgres')) return <Devicon.PostgresqlOriginalWordmark size={24} />;
+  if (t.includes('mysql')) return <Devicon.MysqlOriginalWordmark size={24} />;
+  if (t.includes('sqlite')) return <Devicon.SqliteOriginalWordmark size={24} />;
+  if (t.includes('redis')) return <Devicon.RedisPlainWordmark size={24} />;
+  if (t.includes('docker')) return <Devicon.DockerOriginal size={24} />;
+  if (t.includes('kubernetes') || t.includes('k8s')) return <Devicon.KubernetesLineWordmark size={24} />;
+  if (t.includes('aws') || t.includes('amazon')) return <Devicon.AmazonwebservicesOriginalWordmark size={24} />;
+  if (t.includes('azure')) return <Devicon.AzureOriginal size={24} />;
+  if (t.includes('google cloud') || t.includes('gcp')) return <Devicon.GooglecloudOriginalWordmark size={24} />;
+  if (t.includes('nginx')) return <Devicon.NginxOriginal size={24} />;
+  if (t.includes('tailwind')) return <Devicon.TailwindcssOriginalWordmark size={24} />;
+  if (t.includes('bootstrap')) return <Devicon.BootstrapOriginalWordmark size={24} />;
+  if (t.includes('sass') || t.includes('scss')) return <Devicon.SassOriginal size={24} />;
+  if (t.includes('css')) return <Devicon.Css3Original size={24} />;
+  if (t.includes('html')) return <Devicon.Html5Original size={24} />;
+  if (t.includes('.net') || t.includes('dotnet')) return <Devicon.DotNetPlain size={24} />;
+  if (t.includes('git')) return <Devicon.GitOriginal size={24} />;
+
+  return <Cpu size={24} />;
 };
 
 // INLINE EDITABLE COMPONENT FOR STRINGS
@@ -366,67 +350,88 @@ export function CaseStudyPreview({ data, onChangeData, onDownload, onReset, isDo
     if (activePage < 4) setActivePage(prev => prev + 1);
   };
 
-  // PDF Export: renders all 4 pages off-screen and captures them
+  // PDF Export via Puppeteer on the server — pixel-perfect, same as browser view
   const handleExportPdf = async () => {
     setIsExportingPdf(true);
     try {
-      // Switch to scroll mode temporarily so all pages are in DOM
+      // Switch to scroll so all 4 page divs are in the DOM
       const prevMode = viewMode;
       setViewMode('scroll');
-      // Wait for DOM to update
-      await new Promise(resolve => setTimeout(resolve, 400));
+      await new Promise(r => setTimeout(r, 350));
 
-      const pdf = new jsPDF({
-        orientation: 'portrait',
-        unit: 'mm',
-        format: 'a4',
-        compress: true,
+      // Collect all 4 page elements
+      const pageEls = [1, 2, 3, 4].map(n => pageRefs.current[n]).filter(Boolean) as HTMLDivElement[];
+      if (pageEls.length === 0) throw new Error("Page elements not found");
+
+      // Grab all stylesheets from the document (Tailwind compiled CSS)
+      const styleSheets = Array.from(document.styleSheets)
+        .map(sheet => {
+          try {
+            return Array.from(sheet.cssRules).map(r => r.cssText).join('\n');
+          } catch { return ''; }
+        })
+        .join('\n');
+
+      // Build a self-contained HTML with one section per A4 page
+      // Each page gets @page break-after so Puppeteer splits them correctly
+      const pagesHtml = pageEls.map((el, i) => `
+        <div class="pdf-page" style="
+          width: 794px;
+          min-height: 1123px;
+          background: white;
+          padding: 40px;
+          box-sizing: border-box;
+          page-break-after: ${i < pageEls.length - 1 ? 'always' : 'auto'};
+          break-after: ${i < pageEls.length - 1 ? 'page' : 'auto'};
+          font-family: ui-sans-serif, system-ui, sans-serif;
+          color: #1e293b;
+        ">
+          ${el.innerHTML}
+        </div>
+      `).join('');
+
+      const fullHtml = `<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=794" />
+  <style>
+    * { box-sizing: border-box; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    body { margin: 0; padding: 0; background: white; }
+    @page { size: A4; margin: 0; }
+    ${styleSheets}
+  </style>
+</head>
+<body>
+  ${pagesHtml}
+</body>
+</html>`;
+
+      const response = await fetch('/api/export-pdf', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ html: fullHtml }),
       });
 
-      const A4_WIDTH_MM = 210;
-      const A4_HEIGHT_MM = 297;
-
-      for (let pageNum = 1; pageNum <= 4; pageNum++) {
-        const el = pageRefs.current[pageNum];
-        if (!el) continue;
-
-        const canvas = await html2canvas(el, {
-          scale: 2,
-          useCORS: true,
-          allowTaint: true,
-          backgroundColor: '#ffffff',
-          logging: false,
-          width: el.scrollWidth,
-          height: el.scrollHeight,
-          windowWidth: el.scrollWidth,
-          windowHeight: el.scrollHeight,
-        });
-
-        const imgData = canvas.toDataURL('image/jpeg', 0.95);
-        const canvasAspect = canvas.height / canvas.width;
-        const imgHeightMM = A4_WIDTH_MM * canvasAspect;
-
-        if (pageNum > 1) pdf.addPage();
-
-        // If content fits in A4, center it; otherwise scale to fit
-        if (imgHeightMM <= A4_HEIGHT_MM) {
-          const yOffset = (A4_HEIGHT_MM - imgHeightMM) / 2;
-          pdf.addImage(imgData, 'JPEG', 0, yOffset, A4_WIDTH_MM, imgHeightMM);
-        } else {
-          // Scale down to fit A4 height
-          const scaledWidth = A4_HEIGHT_MM / canvasAspect;
-          const xOffset = (A4_WIDTH_MM - scaledWidth) / 2;
-          pdf.addImage(imgData, 'JPEG', xOffset, 0, scaledWidth, A4_HEIGHT_MM);
-        }
+      if (!response.ok) {
+        const err = await response.json();
+        throw new Error(err.error || 'PDF export failed');
       }
 
-      pdf.save(`${data.title.replace(/\s+/g, '_')}_CaseStudy.pdf`);
+      const blob = await response.blob();
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `${data.title.replace(/\s+/g, '_')}_CaseStudy.pdf`;
+      document.body.appendChild(a);
+      a.click();
+      URL.revokeObjectURL(url);
+      document.body.removeChild(a);
 
-      // Restore previous view mode
       setViewMode(prevMode);
-    } catch (err) {
+    } catch (err: any) {
       console.error('PDF export failed:', err);
-      alert('PDF export failed. Please try again.');
+      alert(`PDF export failed: ${err.message}`);
     } finally {
       setIsExportingPdf(false);
     }

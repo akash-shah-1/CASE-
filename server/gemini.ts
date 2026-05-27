@@ -1,14 +1,19 @@
 import { GoogleGenAI, Type } from "@google/genai";
 import { CaseStudyData } from "../src/types";
+import * as dotenv from "dotenv";
 
-const ai = new GoogleGenAI({
-  apiKey: process.env.GEMINI_API_KEY!,
-  httpOptions: {
-    headers: {
-      'User-Agent': 'aistudio-build',
-    }
-  }
-});
+// Load .env before anything else
+dotenv.config();
+
+// Lazy-initialize so the API key is read after dotenv runs
+function getAI() {
+  const apiKey = process.env.GEMINI_API_KEY;
+  if (!apiKey) throw new Error("GEMINI_API_KEY is not set in environment");
+  return new GoogleGenAI({
+    apiKey,
+    httpOptions: { headers: { "User-Agent": "aistudio-build" } },
+  });
+}
 
 async function withRetry<T>(fn: () => Promise<T>, maxRetries = 3, initialDelay = 1000): Promise<T> {
   let lastError: any;
@@ -159,7 +164,7 @@ export async function generateCaseStudyContent(requirement: string): Promise<Cas
     Example image prompt: "Modern retail pharmacy store interior with digital checkout terminals, professional staff, organized medication shelves, clean corporate environment"
   `;
 
-  const response = await withRetry(() => ai.models.generateContent({
+  const response = await withRetry(() => getAI().models.generateContent({
     model: "gemini-3.1-flash-lite",
     contents: prompt,
     config: {
@@ -207,46 +212,52 @@ export async function generateCaseStudyContent(requirement: string): Promise<Cas
 }
 
 export async function generateImage(imagePrompt: string): Promise<string> {
+  const hfToken = process.env.HF_TOKEN;
+  if (!hfToken || hfToken === "your_huggingface_token_here") {
+    console.error("HF_TOKEN not set in .env");
+    return "";
+  }
+
+  // FLUX.1-schnell — free, fast, high quality
+  const HF_MODEL = "black-forest-labs/FLUX.1-schnell";
+  const url = `https://router.huggingface.co/hf-inference/models/${HF_MODEL}`;
+
   try {
-    const response = await withRetry(() => ai.models.generateContent({
-      model: "gemini-3.1-flash-image-preview",
-      contents: imagePrompt,
-      config: {
-        responseModalities: ["IMAGE", "TEXT"],
+    console.log(`[HF] Generating image for prompt: "${imagePrompt.slice(0, 80)}..."`);
+
+    const response = await fetch(url, {
+      method: "POST",
+      headers: {
+        "Authorization": `Bearer ${hfToken}`,
+        "Content-Type": "application/json",
+        "Accept": "image/jpeg",
       },
-    }));
+      body: JSON.stringify({
+        inputs: imagePrompt,
+        parameters: {
+          num_inference_steps: 4,
+          width: 896,
+          height: 512,
+          seed: Math.floor(Math.random() * 2147483647), // random seed = different image every call
+        },
+      }),
+    });
 
-    console.log("Image gen raw response:", JSON.stringify({
-      candidateCount: response.candidates?.length,
-      parts: response.candidates?.[0]?.content?.parts?.map(p => ({
-        hasInlineData: !!p.inlineData,
-        mimeType: p.inlineData?.mimeType,
-        dataLength: p.inlineData?.data?.length,
-        text: p.text,
-      })),
-      promptFeedback: response.promptFeedback,
-    }, null, 2));
-
-    // The image is returned as an inline base64 part
-    if (response.candidates && response.candidates.length > 0) {
-      const parts = response.candidates[0].content?.parts ?? [];
-      for (const part of parts) {
-        if (part.inlineData?.mimeType?.startsWith("image/") && part.inlineData.data) {
-          return `data:${part.inlineData.mimeType};base64,${part.inlineData.data}`;
-        }
-      }
-      console.error("No image part found. Parts received:", JSON.stringify(parts));
-    } else {
-      console.error("No candidates in response:", JSON.stringify(response));
+    if (!response.ok) {
+      const errText = await response.text();
+      console.error(`[HF] API error ${response.status}:`, errText);
+      return "";
     }
 
-    throw new Error("No image data in response");
+    const contentType = response.headers.get("content-type") || "image/jpeg";
+    const arrayBuffer = await response.arrayBuffer();
+    const base64 = Buffer.from(arrayBuffer).toString("base64");
+
+    console.log(`[HF] Image generated successfully, size: ${arrayBuffer.byteLength} bytes`);
+    return `data:${contentType};base64,${base64}`;
+
   } catch (error: any) {
-    console.error("Image generation error — full details:", {
-      message: error.message,
-      status: error.status,
-      stack: error.stack,
-    });
+    console.error("[HF] generateImage failed:", error.message);
     return "";
   }
 }

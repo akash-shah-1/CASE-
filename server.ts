@@ -3,6 +3,7 @@ import path from "path";
 import { createServer as createViteServer } from "vite";
 import { generateCaseStudyContent, generateImage } from "./server/gemini";
 import { generateDocx } from "./server/docx-generator";
+import puppeteer from "puppeteer";
 
 async function startServer() {
   const app = express();
@@ -61,6 +62,39 @@ async function startServer() {
       res.json({ images: results });
     } catch (error: any) {
       console.error("Batch Image Generation Error:", error);
+      res.status(500).json({ error: error.message });
+    }
+  });
+
+  app.post("/api/export-pdf", async (req, res) => {
+    try {
+      const { html } = req.body;
+      if (!html) return res.status(400).json({ error: "html is required" });
+
+      const browser = await puppeteer.launch({
+        headless: true,
+        args: ["--no-sandbox", "--disable-setuid-sandbox", "--disable-dev-shm-usage", "--disable-gpu"],
+      });
+
+      const page = await browser.newPage();
+      await page.setViewport({ width: 794, height: 1123, deviceScaleFactor: 2 });
+
+      // Set the full HTML directly — includes all inlined styles from the frontend
+      await page.setContent(html, { waitUntil: "networkidle0", timeout: 30000 });
+
+      const pdfBuffer = await page.pdf({
+        format: "A4",
+        printBackground: true,
+        margin: { top: "0", right: "0", bottom: "0", left: "0" },
+      });
+
+      await browser.close();
+
+      res.setHeader("Content-Type", "application/pdf");
+      res.setHeader("Content-Disposition", `attachment; filename="CaseStudy.pdf"`);
+      res.send(Buffer.from(pdfBuffer));
+    } catch (error: any) {
+      console.error("PDF Export Error:", error);
       res.status(500).json({ error: error.message });
     }
   });

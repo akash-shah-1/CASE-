@@ -1,14 +1,14 @@
 import express from "express";
 import path from "path";
 import { createServer as createViteServer } from "vite";
-import { generateCaseStudyContent } from "./server/gemini";
+import { generateCaseStudyContent, generateImage } from "./server/gemini";
 import { generateDocx } from "./server/docx-generator";
 
 async function startServer() {
   const app = express();
   const PORT = 3000;
 
-  app.use(express.json());
+  app.use(express.json({ limit: '50mb' }));
 
   // API Routes
   app.post("/api/generate", async (req, res) => {
@@ -21,6 +21,46 @@ async function startServer() {
       res.json(data);
     } catch (error: any) {
       console.error("Gemini Error:", error);
+      res.status(500).json({ error: error.message });
+    }
+  });
+
+  app.post("/api/generate-image", async (req, res) => {
+    try {
+      const { prompt } = req.body;
+      if (!prompt) {
+        return res.status(400).json({ error: "Image prompt is required" });
+      }
+      const imageUrl = await generateImage(prompt);
+      res.json({ imageUrl });
+    } catch (error: any) {
+      console.error("Image Generation Error:", error);
+      res.status(500).json({ error: error.message });
+    }
+  });
+
+  app.post("/api/generate-images", async (req, res) => {
+    try {
+      const { images } = req.body;
+      if (!images || !Array.isArray(images)) {
+        return res.status(400).json({ error: "Images array is required" });
+      }
+      
+      // Generate all images in parallel
+      const imagePromises = images.map(async (img: any) => {
+        try {
+          const imageUrl = await generateImage(img.prompt);
+          return { id: img.id, imageUrl, success: true };
+        } catch (error) {
+          console.error(`Failed to generate image ${img.id}:`, error);
+          return { id: img.id, imageUrl: "", success: false };
+        }
+      });
+      
+      const results = await Promise.all(imagePromises);
+      res.json({ images: results });
+    } catch (error: any) {
+      console.error("Batch Image Generation Error:", error);
       res.status(500).json({ error: error.message });
     }
   });

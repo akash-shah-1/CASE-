@@ -76,10 +76,23 @@ async function generateCaseStudyContent(requirement: string) {
       benefits: { type: Type.ARRAY, items: { type: Type.STRING } },
       projectFeatures: { type: Type.ARRAY, items: { type: Type.STRING } },
       resultsAchieved: { type: Type.STRING },
+      images: {
+        type: Type.ARRAY,
+        items: {
+          type: Type.OBJECT,
+          properties: {
+            id: { type: Type.STRING },
+            prompt: { type: Type.STRING },
+            position: { type: Type.STRING },
+            alt: { type: Type.STRING },
+          },
+          required: ["id", "prompt", "position", "alt"]
+        }
+      },
     },
     required: [
       "title", "introduction", "businessGoal", "problem", "approach", 
-      "solution", "technologyStack", "benefits", "projectFeatures", "resultsAchieved"
+      "solution", "technologyStack", "benefits", "projectFeatures", "resultsAchieved", "images"
     ]
   };
 
@@ -102,6 +115,15 @@ async function generateCaseStudyContent(requirement: string) {
     - "Benefits" should be 8-12 concise bullet points.
     - "Project Features" should be 4-6 key technical features.
     - "Results Achieved" should be a summarizing paragraph about growth and success.
+    - "images" must be an array of EXACTLY 7 objects with these fixed IDs in this order:
+        1. id: "page1_cover"   — a wide hero banner image representing the overall project/industry
+        2. id: "page2_problem1" — an image visualizing the legacy system challenges
+        3. id: "page2_problem2" — an image showing technical bottlenecks or pain points
+        4. id: "page3_solution1" — an image of the modern solution architecture or UI
+        5. id: "page3_solution2" — an image showing cloud/infrastructure or deployment
+        6. id: "page4_benefits"  — an image representing business results and ROI
+        7. id: "page4_results"   — an image showing successful implementation or happy users
+      For each image, write a detailed, vivid "prompt" (2-3 sentences) for an AI image generator that is specific to THIS project's industry and context. Set "position" to "center" for all. Set "alt" to a short descriptive label.
   `;
 
   const response = await withRetry(() => ai.models.generateContent({

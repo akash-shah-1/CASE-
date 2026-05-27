@@ -49,14 +49,5 @@ export const defaultCaseStudy: CaseStudyData = {
     "Dispensary Gate Warning Alerts",
     "Dynamic Batch & Expiry Tracker"
   ],
-  resultsAchieved: "The POS suite is successfully running on 350+ active terminals across all 120+ stores. The pharmacy chain saw a 28% increase in operational throughput, zero stock discrepancies, and full compliance approval on controlled drugs within the first quarter of rollout.",
-  images: [
-    { id: "page1_cover", prompt: "Modern pharmacy retail store interior with digital POS terminals, clean professional healthcare environment, warm lighting, corporate atmosphere", position: "center", alt: "Pharmacy Store Overview" },
-    { id: "page2_problem1", prompt: "Disorganized warehouse inventory with broken systems, connecting cables and outdated technology equipment", position: "center", alt: "Legacy System Challenges" },
-    { id: "page2_problem2", prompt: "Technical diagram showing database bottlenecks and network connectivity issues in retail environment", position: "center", alt: "Technical Bottlenecks" },
-    { id: "page3_solution1", prompt: "Modern Android tablet running POS application with barcode scanner and card reader peripheral devices", position: "center", alt: "Modern POS Solution" },
-    { id: "page3_solution2", prompt: "Server rack with cloud infrastructure showing real-time data synchronization across multiple retail locations", position: "center", alt: "Cloud Architecture" },
-    { id: "page4_benefits", prompt: "Professional business team celebrating success with charts and graphs showing increased productivity and revenue growth", position: "center", alt: "Business Results" },
-    { id: "page4_results", prompt: "Modern pharmacy with happy customers at checkout counters with digital displays and organized inventory shelves", position: "center", alt: "Successful Implementation" }
-  ]
+  resultsAchieved: "The POS suite is successfully running on 350+ active terminals across all 120+ stores. The pharmacy chain saw a 28% increase in operational throughput, zero stock discrepancies, and full compliance approval on controlled drugs within the first quarter of rollout."
 };

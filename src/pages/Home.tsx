@@ -38,8 +38,6 @@ export default function Home() {
   const [requirement, setRequirement] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [isDownloading, setIsDownloading] = useState(false);
-  // Ref to trigger image generation from CaseStudyPreview imperatively
-  const generateAllImagesRef = useRef<(() => void) | null>(null);
   
   // Tabbed system for Draft and Chat co-pilot
   const [activeTab, setActiveTab] = useState<'chat' | 'drafts'>('chat');
@@ -172,17 +170,11 @@ export default function Home() {
       // Update Preview Data State with new parsed Document
       setData(result);
 
-      // Auto-trigger image generation for all slots immediately after data loads
-      // Small timeout lets React flush the state update first
-      setTimeout(() => {
-        generateAllImagesRef.current?.();
-      }, 150);
-
       // Add Assistant response matching the document structure
       const botMsg: ChatMessage = {
         id: (Date.now() + 1).toString(),
         sender: 'assistant',
-        text: `I have compiled the new CIS Case Study for **"${result.title}"**!\n\nThe live layout has updated on the right side. All 4 sheets are complete and formatted. **Images are generating automatically** across all pages — they will appear as each one completes!\n\nFeel free to download the Microsoft Word file (.docx) or use this chat menu for modifications!`,
+        text: `I have compiled the new CIS Case Study for **"${result.title}"**!\n\nThe live layout has updated on the right side. All 4 sheets are complete and formatted.\n\nFeel free to download the Microsoft Word file (.docx) or use this chat menu for modifications!`,
         timestamp: new Date()
       };
       
@@ -547,7 +539,6 @@ export default function Home() {
           onDownload={handleDownload}
           onReset={handleReset}
           isDownloading={isDownloading}
-          generateAllImagesRef={generateAllImagesRef}
         />
       </div>
 

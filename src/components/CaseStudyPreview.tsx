@@ -12,75 +12,11 @@ import {
   BookOpen, 
   Cpu, 
   ShieldCheck, 
-  HeartHandshake,
-  Image as ImageIcon,
-  Loader2,
-  RefreshCw,
-  FileDown
+  HeartHandshake
 } from 'lucide-react';
-import * as Devicon from 'devicons-react';
 import { CaseStudyData } from '../types';
 import { motion, AnimatePresence } from 'motion/react';
 import { CISLogo } from './CISLogo';
-import html2canvas from 'html2canvas';
-import jsPDF from 'jspdf';
-
-// Tech icon mapping
-const getTechIcon = (tech: string): React.ReactNode => {
-  const techLower = tech.toLowerCase();
-  
-  const iconMap: Record<string, React.ReactNode> = {
-    'react': <Devicon.ReactOriginal size={24} />,
-    'typescript': <Devicon.TypescriptOriginal size={24} />,
-    'ts': <Devicon.TypescriptOriginal size={24} />,
-    'node': <Devicon.NodejsLineWordmark size={24} />,
-    'nodejs': <Devicon.NodejsLineWordmark size={24} />,
-    'node.js': <Devicon.NodejsLineWordmark size={24} />,
-    'mongodb': <Devicon.MongodbOriginalWordmark size={24} />,
-    'mongo': <Devicon.MongodbOriginalWordmark size={24} />,
-    'postgresql': <Devicon.PostgresqlOriginalWordmark size={24} />,
-    'postgres': <Devicon.PostgresqlOriginalWordmark size={24} />,
-    'docker': <Devicon.DockerOriginal size={24} />,
-    'redis': <Devicon.RedisPlainWordmark size={24} />,
-    'git': <Devicon.GitOriginal size={24} />,
-    'css': <Devicon.Css3Original size={24} />,
-    'html': <Devicon.Html5Original size={24} />,
-    'javascript': <Devicon.JavascriptOriginal size={24} />,
-    'js': <Devicon.JavascriptOriginal size={24} />,
-    'python': <Devicon.PythonOriginalWordmark size={24} />,
-    'java': <Devicon.JavaOriginal size={24} />,
-    'php': <Devicon.PhpOriginal size={24} />,
-    'laravel': <Devicon.LaravelOriginal size={24} />,
-    'angular': <Devicon.AngularOriginal size={24} />,
-    'vue': <Devicon.VuejsLine size={24} />,
-    'vuejs': <Devicon.VuejsLine size={24} />,
-    'sass': <Devicon.SassOriginal size={24} />,
-    'nginx': <Devicon.NginxOriginal size={24} />,
-    'mysql': <Devicon.MysqlOriginalWordmark size={24} />,
-    'sqlite': <Devicon.SqliteOriginalWordmark size={24} />,
-    '.net': <Devicon.DotNetPlain size={24} />,
-    'dotnet': <Devicon.DotNetPlain size={24} />,
-    'bootstrap': <Devicon.BootstrapOriginalWordmark size={24} />,
-    'tailwind': <Devicon.TailwindcssOriginalWordmark size={24} />,
-    'tailwindcss': <Devicon.TailwindcssOriginalWordmark size={24} />,
-    'express': <Devicon.ExpressOriginal size={24} />,
-    'graphql': <Devicon.GraphqlPlainWordmark size={24} />,
-    'kubernetes': <Devicon.KubernetesLineWordmark size={24} />,
-    'k8s': <Devicon.KubernetesLineWordmark size={24} />,
-    'aws': <Devicon.AmazonwebservicesOriginalWordmark size={24} />,
-    'amazon': <Devicon.AmazonwebservicesOriginalWordmark size={24} />,
-    'amazon web services': <Devicon.AmazonwebservicesOriginalWordmark size={24} />,
-    'azure': <Devicon.AzureOriginal size={24} />,
-    'gcp': <Devicon.GooglecloudOriginalWordmark size={24} />,
-    'google cloud': <Devicon.GooglecloudOriginalWordmark size={24} />,
-    'flask': <Devicon.FlaskOriginalWordmark size={24} />,
-    'django': <Devicon.DjangoPlainWordmark size={24} />,
-    'nextjs': <Devicon.NextjsLineWordmark size={24} />,
-    'next': <Devicon.NextjsLineWordmark size={24} />,
-  };
-  
-  return iconMap[techLower] || <Cpu size={24} />;
-};
 
 // INLINE EDITABLE COMPONENT FOR STRINGS
 function EditableText({
@@ -281,82 +217,13 @@ interface CaseStudyPreviewProps {
   onDownload: () => void;
   onReset: () => void;
   isDownloading: boolean;
-  generateAllImagesRef?: React.MutableRefObject<(() => void) | null>;
 }
 
-// PDF page refs type
-type PageRefs = {
-  [key: number]: HTMLDivElement | null;
-};
-
-// Image slot component
-function ImageSlot({ 
-  image, 
-  onGenerate,
-  isGenerating 
-}: { 
-  image: any; 
-  onGenerate: (id: string) => void;
-  isGenerating: boolean;
-}) {
-  return (
-    <div className="relative bg-slate-50 border-2 border-dashed border-slate-300 rounded-xl overflow-hidden group/image h-full">
-      {isGenerating ? (
-        // Full-slot generating overlay — shows while any generation is in progress
-        <div className="absolute inset-0 flex flex-col items-center justify-center bg-[#023D4A]/5 border-2 border-dashed border-[#023D4A]/30 rounded-xl z-10">
-          <div className="w-10 h-10 rounded-full bg-[#023D4A]/10 flex items-center justify-center mb-2">
-            <Loader2 size={20} className="text-[#023D4A] animate-spin" />
-          </div>
-          <p className="text-[10px] font-bold text-[#023D4A] uppercase tracking-wider">Generating...</p>
-          <p className="text-[9px] text-slate-400 mt-0.5 text-center px-3 truncate max-w-full">{image.alt}</p>
-        </div>
-      ) : image.imageUrl ? (
-        <div className="relative h-full">
-          <img 
-            src={image.imageUrl} 
-            alt={image.alt || 'Case study image'} 
-            className="w-full h-full object-cover rounded-xl"
-          />
-          {/* Hover overlay with regenerate button */}
-          <div className="absolute inset-0 bg-black/50 opacity-0 group-hover/image:opacity-100 transition-opacity flex flex-col items-center justify-center gap-2 rounded-xl">
-            <p className="text-[9px] text-white/70 font-medium uppercase tracking-wider">{image.alt}</p>
-            <button
-              onClick={() => onGenerate(image.id)}
-              className="px-3 py-1.5 bg-white text-slate-800 rounded-lg text-xs font-bold uppercase tracking-wider flex items-center gap-2 hover:bg-[#F25B24] hover:text-white transition-colors shadow-md"
-            >
-              <RefreshCw size={13} />
-              Regenerate
-            </button>
-          </div>
-        </div>
-      ) : (
-        <div className="flex flex-col items-center justify-center py-8 px-4 h-full">
-          <div className="w-12 h-12 bg-slate-200 rounded-full flex items-center justify-center mb-3">
-            <ImageIcon size={24} className="text-slate-400" />
-          </div>
-          <p className="text-xs text-slate-500 font-medium mb-3 text-center">{image.alt || 'Image placeholder'}</p>
-          <button
-            onClick={() => onGenerate(image.id)}
-            className="px-4 py-2 bg-[#023D4A] hover:bg-[#03596c] text-white rounded-lg text-xs font-bold uppercase tracking-wider flex items-center gap-2 transition-colors"
-          >
-            <ImageIcon size={14} />
-            Generate Image
-          </button>
-        </div>
-      )}
-    </div>
-  );
-}
-
-export function CaseStudyPreview({ data, onChangeData, onDownload, onReset, isDownloading, generateAllImagesRef }: CaseStudyPreviewProps) {
+export function CaseStudyPreview({ data, onChangeData, onDownload, onReset, isDownloading }: CaseStudyPreviewProps) {
   // Navigation states: 'slider' or 'scroll'
   const [viewMode, setViewMode] = useState<'slider' | 'scroll'>('slider');
   const [activePage, setActivePage] = useState<number>(1);
-  const [generatingImages, setGeneratingImages] = useState<Set<string>>(new Set());
-  const [isExportingPdf, setIsExportingPdf] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
-  // Refs for each page for PDF export
-  const pageRefs = useRef<PageRefs>({});
 
   const prevPage = () => {
     if (activePage > 1) setActivePage(prev => prev - 1);
@@ -364,153 +231,6 @@ export function CaseStudyPreview({ data, onChangeData, onDownload, onReset, isDo
 
   const nextPage = () => {
     if (activePage < 4) setActivePage(prev => prev + 1);
-  };
-
-  // PDF Export: renders all 4 pages off-screen and captures them
-  const handleExportPdf = async () => {
-    setIsExportingPdf(true);
-    try {
-      // Switch to scroll mode temporarily so all pages are in DOM
-      const prevMode = viewMode;
-      setViewMode('scroll');
-      // Wait for DOM to update
-      await new Promise(resolve => setTimeout(resolve, 400));
-
-      const pdf = new jsPDF({
-        orientation: 'portrait',
-        unit: 'mm',
-        format: 'a4',
-        compress: true,
-      });
-
-      const A4_WIDTH_MM = 210;
-      const A4_HEIGHT_MM = 297;
-
-      for (let pageNum = 1; pageNum <= 4; pageNum++) {
-        const el = pageRefs.current[pageNum];
-        if (!el) continue;
-
-        const canvas = await html2canvas(el, {
-          scale: 2,
-          useCORS: true,
-          allowTaint: true,
-          backgroundColor: '#ffffff',
-          logging: false,
-          width: el.scrollWidth,
-          height: el.scrollHeight,
-          windowWidth: el.scrollWidth,
-          windowHeight: el.scrollHeight,
-        });
-
-        const imgData = canvas.toDataURL('image/jpeg', 0.95);
-        const canvasAspect = canvas.height / canvas.width;
-        const imgHeightMM = A4_WIDTH_MM * canvasAspect;
-
-        if (pageNum > 1) pdf.addPage();
-
-        // If content fits in A4, center it; otherwise scale to fit
-        if (imgHeightMM <= A4_HEIGHT_MM) {
-          const yOffset = (A4_HEIGHT_MM - imgHeightMM) / 2;
-          pdf.addImage(imgData, 'JPEG', 0, yOffset, A4_WIDTH_MM, imgHeightMM);
-        } else {
-          // Scale down to fit A4 height
-          const scaledWidth = A4_HEIGHT_MM / canvasAspect;
-          const xOffset = (A4_WIDTH_MM - scaledWidth) / 2;
-          pdf.addImage(imgData, 'JPEG', xOffset, 0, scaledWidth, A4_HEIGHT_MM);
-        }
-      }
-
-      pdf.save(`${data.title.replace(/\s+/g, '_')}_CaseStudy.pdf`);
-
-      // Restore previous view mode
-      setViewMode(prevMode);
-    } catch (err) {
-      console.error('PDF export failed:', err);
-      alert('PDF export failed. Please try again.');
-    } finally {
-      setIsExportingPdf(false);
-    }
-  };
-
-  // Handle image generation
-  const handleGenerateImage = async (imageId: string) => {
-    const image = data.images?.find(img => img.id === imageId);
-    if (!image) return;
-    
-    setGeneratingImages(prev => new Set(prev).add(imageId));
-    
-    try {
-      const response = await fetch('/api/generate-image', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ prompt: image.prompt }),
-      });
-      
-      const result = await response.json();
-      if (result.imageUrl) {
-        const updatedImages = data.images?.map(img => 
-          img.id === imageId ? { ...img, imageUrl: result.imageUrl } : img
-        ) || [];
-        onChangeData({ ...data, images: updatedImages });
-      }
-    } catch (error) {
-      console.error("Failed to generate image:", error);
-    } finally {
-      setGeneratingImages(prev => {
-        const next = new Set(prev);
-        next.delete(imageId);
-        return next;
-      });
-    }
-  };
-
-  // Keep a ref to always have the latest data for parallel updates
-  const dataRef = useRef(data);
-  useEffect(() => { dataRef.current = data; }, [data]);
-
-  // Expose handleGenerateAllImages to parent via ref
-  useEffect(() => {
-    if (generateAllImagesRef) {
-      generateAllImagesRef.current = handleGenerateAllImages;
-    }
-  });
-
-  // Generate all images in parallel — each updates the preview as it completes
-  const handleGenerateAllImages = async () => {
-    if (!data.images || data.images.length === 0) return;
-
-    // Mark all as generating immediately
-    setGeneratingImages(new Set(data.images.map(img => img.id)));
-
-    // Fire all requests in parallel; each one updates state as it resolves
-    const promises = data.images.map(async (image) => {
-      try {
-        const response = await fetch('/api/generate-image', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ prompt: image.prompt }),
-        });
-        const result = await response.json();
-        if (result.imageUrl) {
-          // Use the ref to get latest data so parallel updates don't overwrite each other
-          const latest = dataRef.current;
-          const updatedImages = latest.images?.map(img =>
-            img.id === image.id ? { ...img, imageUrl: result.imageUrl } : img
-          ) || [];
-          onChangeData({ ...latest, images: updatedImages });
-        }
-      } catch (error) {
-        console.error(`Failed to generate image ${image.id}:`, error);
-      } finally {
-        setGeneratingImages(prev => {
-          const next = new Set(prev);
-          next.delete(image.id);
-          return next;
-        });
-      }
-    });
-
-    await Promise.allSettled(promises);
   };
 
   // State update handlers
@@ -593,7 +313,7 @@ export function CaseStudyPreview({ data, onChangeData, onDownload, onReset, isDo
   // Helper for rendering standard Page Footer
   const renderPageFooter = (pageNum: number) => {
     return (
-      <div className="mt-6 border-t border-slate-100 pt-4 flex items-center justify-between text-[8px] text-slate-400 font-medium font-sans uppercase tracking-wider">
+      <div className="mt-auto border-t border-slate-100 pt-4 flex items-center justify-between text-[8px] text-slate-400 font-medium font-sans uppercase tracking-wider">
         <div>© 2026 CIS Systems | Confidential Client Archive</div>
         <div className="flex items-center gap-4">
           <div className="font-bold">Project Identity: {data.title.substring(0, 24)}...</div>
@@ -605,32 +325,16 @@ export function CaseStudyPreview({ data, onChangeData, onDownload, onReset, isDo
     );
   };
 
-  // Find image by ID
-  const getImage = (id: string) => data.images?.find(img => img.id === id);
-
   // individual render functions for the A4 pages
-  const renderPage1 = () => {
-    const coverImage = getImage('page1_cover');
-    return (
-    <div className="w-full flex flex-col bg-white gap-0">
+  const renderPage1 = () => (
+    <div className="w-full h-full flex flex-col bg-white">
       {renderPageHeader(1)}
       
-      {/* Cover Logo Header with Image */}
-      <div className="flex flex-col items-center justify-center mb-6 text-center">
-        {/* Cover Image Slot */}
-        <div className="w-full h-48 mb-4">
-          <ImageSlot 
-            image={coverImage || { id: 'page1_cover', prompt: '', position: 'center', alt: 'Project Cover' }}
-            onGenerate={handleGenerateImage}
-            isGenerating={generatingImages.has('page1_cover')}
-          />
-        </div>
-        
-        <div className="flex flex-col items-center py-4 bg-slate-50/50 rounded-1xl border border-dotted border-slate-200 w-full">
-          <CISLogo className="h-12 w-auto mb-3" />
-          <p className="text-[10px] font-black tracking-[0.3em] text-[#F25B24] uppercase">TECHNICAL CAPABILITY BULLETIN</p>
-          <span className="w-12 h-1 bg-[#023D4A] mt-3 rounded-full"></span>
-        </div>
+      {/* Cover Logo Header */}
+      <div className="flex flex-col items-center justify-center my-6 text-center bg-slate-50/50 py-8 rounded-2xl border border-dotted border-slate-200">
+        <CISLogo className="h-16 w-auto mb-4" />
+        <p className="text-[10px] font-black tracking-[0.3em] text-[#F25B24] uppercase">TECHNICAL CAPABILITY BULLETIN</p>
+        <span className="w-12 h-1 bg-[#023D4A] mt-3 rounded-full"></span>
       </div>
 
       {/* Title Segment */}
@@ -689,7 +393,7 @@ export function CaseStudyPreview({ data, onChangeData, onDownload, onReset, isDo
       </div>
 
       {/* Business Goal box */}
-      <div className="mt-6">
+      <div className="mt-auto">
         <div className="bg-[#023D4A]/5 border border-[#023D4A]/10 p-5 rounded-xl text-slate-800 relative overflow-hidden">
           <div className="absolute top-0 right-0 w-24 h-24 bg-[#023D4A]/5 rounded-full -translate-y-12 translate-x-12"></div>
           <h3 className="text-[10px] font-black text-[#F25B24] uppercase mb-2 tracking-widest flex items-center gap-1.5">
@@ -708,24 +412,20 @@ export function CaseStudyPreview({ data, onChangeData, onDownload, onReset, isDo
       {renderPageFooter(1)}
     </div>
   );
-  };
 
-  const renderPage2 = () => {
-    const problemImage1 = getImage('page2_problem1');
-    const problemImage2 = getImage('page2_problem2');
-    return (
-    <div className="w-full flex flex-col bg-white">
+  const renderPage2 = () => (
+    <div className="w-full h-full flex flex-col bg-white">
       {renderPageHeader(2)}
 
       {/* Section Header */}
-      <div className="mb-4">
+      <div className="mb-6">
         <span className="text-[8px] font-bold text-[#F25B24] uppercase tracking-widest block mb-1">SECTION II</span>
         <h2 className="text-lg font-black text-[#023D4A] tracking-tight uppercase">Project Challenge & Analytical Approach</h2>
         <div className="h-[2px] w-12 bg-[#F25B24] mt-2"></div>
       </div>
 
       {/* Problem Section */}
-      <div className="space-y-3">
+      <div className="space-y-4 mb-6">
         <div className="bg-[#F25B24]/5 border-l-4 border-[#F25B24] p-4 rounded-r-xl">
           <h4 className="text-[9px] font-black text-[#F25B24] uppercase tracking-widest mb-1.5">THE LEGACY PROBLEM OVERVIEW</h4>
           <EditableText
@@ -736,25 +436,7 @@ export function CaseStudyPreview({ data, onChangeData, onDownload, onReset, isDo
           />
         </div>
 
-        {/* Problem Images Grid */}
-        <div className="grid grid-cols-2 gap-4 mb-4">
-          <div className="h-36">
-            <ImageSlot 
-              image={problemImage1 || { id: 'page2_problem1', prompt: '', position: 'center', alt: 'Problem Visualization 1' }}
-              onGenerate={handleGenerateImage}
-              isGenerating={generatingImages.has('page2_problem1')}
-            />
-          </div>
-          <div className="h-36">
-            <ImageSlot 
-              image={problemImage2 || { id: 'page2_problem2', prompt: '', position: 'center', alt: 'Problem Visualization 2' }}
-              onGenerate={handleGenerateImage}
-              isGenerating={generatingImages.has('page2_problem2')}
-            />
-          </div>
-        </div>
-
-        <div className="space-y-2.5 pt-2">
+        <div className="space-y-2.5">
           <div className="text-[9px] font-black text-[#023D4A] uppercase tracking-widest mb-1">KEY TECHNICAL BOTTLENECKS IDENTIFIED:</div>
           <div className="space-y-2">
             {data.problem.points.map((point, idx) => (
@@ -799,7 +481,7 @@ export function CaseStudyPreview({ data, onChangeData, onDownload, onReset, isDo
       </div>
 
       {/* CIS Approach Matrix Section */}
-      <div className="mt-6">
+      <div className="mt-auto">
         <div className="text-[9px] font-black text-[#F25B24] uppercase tracking-widest mb-3">THE CIS METHODOLOGY MODEL (DISCOVER, SOLVE, SIMPLIFY, SUSTAIN)</div>
         <div className="grid grid-cols-2 gap-3">
           {[
@@ -828,24 +510,20 @@ export function CaseStudyPreview({ data, onChangeData, onDownload, onReset, isDo
       {renderPageFooter(2)}
     </div>
   );
-  };
 
-  const renderPage3 = () => {
-    const solutionImage1 = getImage('page3_solution1');
-    const solutionImage2 = getImage('page3_solution2');
-    return (
-    <div className="w-full flex flex-col bg-white">
+  const renderPage3 = () => (
+    <div className="w-full h-full flex flex-col bg-white">
       {renderPageHeader(3)}
 
       {/* Section Header */}
-      <div className="mb-4">
+      <div className="mb-6">
         <span className="text-[8px] font-bold text-[#F25B24] uppercase tracking-widest block mb-1">SECTION III</span>
         <h2 className="text-lg font-black text-[#023D4A] tracking-tight uppercase">System Implementation Architecture</h2>
         <div className="h-[2px] w-12 bg-[#F25B24] mt-2"></div>
       </div>
 
       {/* Solution Overview */}
-      <div className="mb-3">
+      <div className="mb-4">
         <div className="text-[9px] font-black text-[#F25B24] uppercase tracking-widest mb-2">IMPLEMENTATION DESIGN SUMMARY</div>
         <EditableText
           value={data.solution.overview}
@@ -863,73 +541,25 @@ export function CaseStudyPreview({ data, onChangeData, onDownload, onReset, isDo
         </div>
       </div>
 
-      {/* Solution Images Grid */}
-      <div className="grid grid-cols-2 gap-4 mb-5 pb-2">
-        <div className="h-36">
-          <ImageSlot 
-            image={solutionImage1 || { id: 'page3_solution1', prompt: '', position: 'center', alt: 'Solution Implementation 1' }}
-            onGenerate={handleGenerateImage}
-            isGenerating={generatingImages.has('page3_solution1')}
-          />
-        </div>
-        <div className="h-36">
-          <ImageSlot 
-            image={solutionImage2 || { id: 'page3_solution2', prompt: '', position: 'center', alt: 'Solution Implementation 2' }}
-            onGenerate={handleGenerateImage}
-            isGenerating={generatingImages.has('page3_solution2')}
-          />
-        </div>
-      </div>
-
       {/* Operational Modes Grid */}
       <div className="mb-4 bg-slate-50 p-4 rounded-xl border border-slate-100">
-        <div className="text-[8px] font-black uppercase tracking-widest text-[#023D4A] mb-3">INTEGRATION GATEWAYS & CHANNELS</div>
-        <div className="flex flex-wrap gap-2 items-center" onClick={(e) => e.stopPropagation()}>
-          {data.solution.modes.map((tag, idx) => (
-            <div key={idx} className="flex items-center gap-1 bg-white text-slate-700 hover:border-[#023D4A] border border-slate-200 rounded-md shadow-2xs group/tag pr-1.5 py-0.5">
-              <EditableText
-                value={tag}
-                onSave={(newVal) => {
-                  const updated = [...data.solution.modes];
-                  updated[idx] = newVal;
-                  updateSolutionModes(updated);
-                }}
-                type="input"
-                className="px-2 py-0.5 text-[9px] font-extrabold border-none shadow-none bg-transparent hover:ring-0 hover:bg-transparent"
-              />
-              <button
-                type="button"
-                onClick={() => updateSolutionModes(data.solution.modes.filter((_, i) => i !== idx))}
-                className="w-4 h-4 rounded-full flex items-center justify-center hover:bg-slate-100 text-slate-450 hover:text-rose-600 transition-colors ml-0.5 flex-shrink-0 font-bold"
-                title="Remove Tag"
-              >
-                ×
-              </button>
-            </div>
-          ))}
-          <button
-            type="button"
-            onClick={() => updateSolutionModes([...data.solution.modes, "New integration mode channel"])}
-            className="px-3 py-1 rounded bg-[#023D4A] hover:bg-[#F25B24] text-white text-[8px] font-bold uppercase tracking-wider flex items-center justify-center h-6 text-center shadow-2xs font-sans"
-            title="Add Tag"
-          >
-            + Add Mode
-          </button>
-        </div>
+        <div className="text-[8px] font-black uppercase tracking-widest text-[#023D4A] mb-2">INTEGRATION GATEWAYS & CHANNELS</div>
+        <EditableTagList 
+          tags={data.solution.modes} 
+          onChange={updateSolutionModes}
+          newItemTemplate="New integration mode channel"
+        />
       </div>
 
-      {/* Deployed Infrastructure (Technology Stack) with Icons */}
-      <div className="mt-6">
+      {/* Deployed Infrastructure (Technology Stack) */}
+      <div className="mt-auto">
         <div className="text-[9px] font-black text-[#F25B24] uppercase tracking-widest mb-2 flex items-center gap-1.5">
           <Cpu size={12} className="text-[#023D4A]" />
           Infrastructure Stack & Ecosystem
         </div>
         <div className="grid grid-cols-4 gap-2">
           {data.technologyStack.map((tech, i) => (
-            <div key={i} className="px-2 py-2.5 bg-white border border-slate-150 rounded-lg text-center shadow-xs relative group/tech flex flex-col justify-center items-center min-h-[50px]">
-              <div className="mb-1 text-[#023D4A]">
-                {getTechIcon(tech)}
-              </div>
+            <div key={i} className="px-2 py-2.5 bg-white border border-slate-150 rounded-lg text-center shadow-xs relative group/tech flex flex-col justify-center min-h-[50px]">
               <EditableText
                 value={tech}
                 onSave={(newVal) => {
@@ -938,7 +568,7 @@ export function CaseStudyPreview({ data, onChangeData, onDownload, onReset, isDo
                   updateTechnologyStack(updated);
                 }}
                 type="input"
-                className="text-[9px] font-mono font-bold text-[#023D4A] uppercase truncate block w-full text-center hover:ring-0"
+                className="text-[10px] font-mono font-bold text-[#023D4A] uppercase truncate block w-full text-center hover:ring-0"
               />
               <button
                 type="button"
@@ -969,24 +599,20 @@ export function CaseStudyPreview({ data, onChangeData, onDownload, onReset, isDo
       {renderPageFooter(3)}
     </div>
   );
-  };
 
-  const renderPage4 = () => {
-    const benefitsImage = getImage('page4_benefits');
-    const resultsImage = getImage('page4_results');
-    return (
-    <div className="w-full flex flex-col bg-white">
+  const renderPage4 = () => (
+    <div className="w-full h-full flex flex-col bg-white">
       {renderPageHeader(4)}
 
       {/* Section Header */}
-      <div className="mb-4">
+      <div className="mb-6">
         <span className="text-[8px] font-bold text-[#F25B24] uppercase tracking-widest block mb-1">SECTION IV</span>
         <h2 className="text-lg font-black text-[#023D4A] tracking-tight uppercase">Strategic Benefits & Business Return</h2>
         <div className="h-[2px] w-12 bg-[#F25B24] mt-2"></div>
       </div>
 
       {/* Project Key Features list */}
-      <div className="mb-3">
+      <div className="mb-4">
         <div className="text-[9px] font-black text-[#F25B24] uppercase tracking-widest mb-2.5">CORE USER UTILITIES INCLUDED</div>
         <div className="flex flex-wrap gap-2">
           {data.projectFeatures && data.projectFeatures.map((feat, i) => (
@@ -1024,24 +650,6 @@ export function CaseStudyPreview({ data, onChangeData, onDownload, onReset, isDo
           >
             + Add Utility
           </button>
-        </div>
-      </div>
-
-      {/* Benefits Images Grid */}
-      <div className="grid grid-cols-2 gap-4 mb-4 pb-2">
-        <div className="h-32">
-          <ImageSlot 
-            image={benefitsImage || { id: 'page4_benefits', prompt: '', position: 'center', alt: 'Benefits Visualization' }}
-            onGenerate={handleGenerateImage}
-            isGenerating={generatingImages.has('page4_benefits')}
-          />
-        </div>
-        <div className="h-32">
-          <ImageSlot 
-            image={resultsImage || { id: 'page4_results', prompt: '', position: 'center', alt: 'Results Visualization' }}
-            onGenerate={handleGenerateImage}
-            isGenerating={generatingImages.has('page4_results')}
-          />
         </div>
       </div>
 
@@ -1090,8 +698,8 @@ export function CaseStudyPreview({ data, onChangeData, onDownload, onReset, isDo
       </div>
 
       {/* Results Achieved */}
-      <div className="mt-6">
-        <div className="bg-[#023D4A] text-white p-4 rounded-1xl relative overflow-hidden shadow-md">
+      <div className="mt-auto">
+        <div className="bg-[#023D4A] text-white p-4 rounded-2xl relative overflow-hidden shadow-md">
           <div className="absolute -bottom-8 -right-8 w-24 h-24 bg-white/10 rounded-full"></div>
           <div className="flex items-center gap-2 mb-2">
             <ShieldCheck size={16} className="text-[#F25B24]" />
@@ -1121,7 +729,6 @@ export function CaseStudyPreview({ data, onChangeData, onDownload, onReset, isDo
       {renderPageFooter(4)}
     </div>
   );
-  };
 
   return (
     <div className="flex flex-col h-full bg-[#111827] text-slate-350">
@@ -1143,42 +750,6 @@ export function CaseStudyPreview({ data, onChangeData, onDownload, onReset, isDo
         </div>
 
         <div className="flex items-center gap-2">
-          {/* Generate All Images Button */}
-          <button
-            onClick={handleGenerateAllImages}
-            disabled={generatingImages.size > 0}
-            className="flex items-center gap-1.5 px-4 py-2 rounded-lg bg-[#023D4A] text-white text-xs font-black hover:bg-[#03596c] transition-all shadow-md active:scale-98 disabled:opacity-70 uppercase tracking-wider min-w-[160px] justify-center"
-          >
-            {generatingImages.size > 0 ? (
-              <>
-                <Loader2 size={14} className="animate-spin shrink-0" />
-                <span>
-                  {(() => {
-                    const total = data.images?.length ?? 0;
-                    const done = total - generatingImages.size;
-                    return `${done} / ${total} Images`;
-                  })()}
-                </span>
-                {/* Mini progress bar */}
-                <span className="ml-1 w-12 h-1 bg-white/20 rounded-full overflow-hidden">
-                  <span
-                    className="block h-full bg-[#F25B24] rounded-full transition-all duration-300"
-                    style={{
-                      width: `${data.images?.length
-                        ? ((data.images.length - generatingImages.size) / data.images.length) * 100
-                        : 0}%`
-                    }}
-                  />
-                </span>
-              </>
-            ) : (
-              <>
-                <ImageIcon size={14} />
-                <span>Generate All Images</span>
-              </>
-            )}
-          </button>
-
           {/* Layout view controls */}
           <div className="bg-slate-900/60 p-1 rounded-lg flex items-center border border-[#374151] mr-3">
             <button
@@ -1209,24 +780,6 @@ export function CaseStudyPreview({ data, onChangeData, onDownload, onReset, isDo
             <Download size={14} />
             <span>Export Word (.docx)</span>
           </button>
-
-          <button
-            onClick={handleExportPdf}
-            disabled={isExportingPdf}
-            className="flex items-center gap-1.5 px-4 py-2 rounded-lg bg-[#7c3aed] text-white text-xs font-black hover:bg-[#6d28d9] transition-all shadow-md active:scale-98 disabled:opacity-50 uppercase tracking-wider"
-          >
-            {isExportingPdf ? (
-              <>
-                <Loader2 size={14} className="animate-spin" />
-                <span>Exporting PDF...</span>
-              </>
-            ) : (
-              <>
-                <FileDown size={14} />
-                <span>Export PDF</span>
-              </>
-            )}
-          </button>
         </div>
       </div>
 
@@ -1236,7 +789,7 @@ export function CaseStudyPreview({ data, onChangeData, onDownload, onReset, isDo
           <div className="flex flex-col items-center gap-6 w-full max-w-[760px] my-auto py-2">
             
             {/* Slider Sheet Wrapper - enforces Standard A4 Aspect Ratio */}
-            <div className="w-full aspect-[1/1.414] min-h-[700px] md:min-h-[900px] bg-white text-slate-800 shadow-2xl rounded-1xl p-6 md:p-10 relative flex flex-col transition-all overflow-y-auto border border-slate-200">
+            <div className="w-full aspect-[1/1.414] min-h-[700px] md:min-h-[900px] bg-white text-slate-800 shadow-2xl rounded-2xl p-6 md:p-10 relative flex flex-col transition-all overflow-hidden border border-slate-200">
               <AnimatePresence mode="wait">
                 <motion.div
                   key={activePage}
@@ -1244,7 +797,7 @@ export function CaseStudyPreview({ data, onChangeData, onDownload, onReset, isDo
                   animate={{ opacity: 1, x: 0 }}
                   exit={{ opacity: 0, x: -20 }}
                   transition={{ duration: 0.15 }}
-                  className="flex-1 flex flex-col min-h-0"
+                  className="flex-1 flex flex-col h-full overflow-hidden"
                 >
                   {activePage === 1 && renderPage1()}
                   {activePage === 2 && renderPage2()}
@@ -1282,28 +835,16 @@ export function CaseStudyPreview({ data, onChangeData, onDownload, onReset, isDo
         ) : (
           /* Scroll Mode stacked sheets layout */
           <div ref={containerRef} className="flex flex-col items-center gap-8 w-full max-w-[760px] py-4">
-            <div
-              ref={el => { pageRefs.current[1] = el; }}
-              className="w-full bg-white text-slate-800 shadow-2xl rounded-1xl p-6 md:p-10 border border-slate-250 flex flex-col"
-            >
+            <div className="w-full aspect-[1/1.414] min-h-[700px] md:min-h-[900px] bg-white text-slate-800 shadow-2xl rounded-2xl p-6 md:p-10 border border-slate-250 flex flex-col">
               {renderPage1()}
             </div>
-            <div
-              ref={el => { pageRefs.current[2] = el; }}
-              className="w-full bg-white text-slate-800 shadow-2xl rounded-1xl p-6 md:p-10 border border-slate-250 flex flex-col"
-            >
+            <div className="w-full aspect-[1/1.414] min-h-[700px] md:min-h-[900px] bg-white text-slate-800 shadow-2xl rounded-2xl p-6 md:p-10 border border-slate-250 flex flex-col">
               {renderPage2()}
             </div>
-            <div
-              ref={el => { pageRefs.current[3] = el; }}
-              className="w-full bg-white text-slate-800 shadow-2xl rounded-1xl p-6 md:p-10 border border-slate-250 flex flex-col"
-            >
+            <div className="w-full aspect-[1/1.414] min-h-[700px] md:min-h-[900px] bg-white text-slate-800 shadow-2xl rounded-2xl p-6 md:p-10 border border-slate-250 flex flex-col">
               {renderPage3()}
             </div>
-            <div
-              ref={el => { pageRefs.current[4] = el; }}
-              className="w-full bg-white text-slate-800 shadow-2xl rounded-1xl p-6 md:p-10 border border-slate-250 flex flex-col"
-            >
+            <div className="w-full aspect-[1/1.414] min-h-[700px] md:min-h-[900px] bg-white text-slate-800 shadow-2xl rounded-2xl p-6 md:p-10 border border-slate-250 flex flex-col">
               {renderPage4()}
             </div>
           </div>

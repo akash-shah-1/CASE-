@@ -12,64 +12,11 @@ import {
   BorderStyle,
   VerticalAlign,
   ShadingType,
-  PageBreak,
-  ImageRun,
-  convertInchesToTwip
+  PageBreak
 } from "docx";
-import { CaseStudyData, ImagePlaceholder } from "../src/types";
+import { CaseStudyData } from "../src/types";
 
 export async function generateDocx(data: CaseStudyData): Promise<Buffer> {
-  // Helper to convert base64 to Uint8Array
-  const base64ToUint8Array = (base64: string): Uint8Array => {
-    const base64Data = base64.replace(/^data:image\/\w+;base64,/, '');
-    const binaryString = atob(base64Data);
-    const bytes = new Uint8Array(binaryString.length);
-    for (let i = 0; i < binaryString.length; i++) {
-      bytes[i] = binaryString.charCodeAt(i);
-    }
-    return bytes;
-  };
-
-  // Helper to create image paragraph
-  const createImageParagraph = (image: ImagePlaceholder): Paragraph => {
-    if (!image.imageUrl || !image.imageUrl.startsWith('data:')) {
-      return new Paragraph({
-        children: [new TextRun({ text: `[Image: ${image.alt || image.id}]`, italics: true, color: "888888" })],
-        alignment: AlignmentType.CENTER,
-        spacing: { after: 200 },
-      });
-    }
-
-    try {
-      const imageBytes = base64ToUint8Array(image.imageUrl);
-      return new Paragraph({
-        children: [
-          new ImageRun({
-            data: imageBytes,
-            transformation: {
-              width: 450,
-              height: 250,
-            },
-            type: "png",
-          }),
-        ],
-        alignment: AlignmentType.CENTER,
-        spacing: { after: 200 },
-      });
-    } catch (error) {
-      console.error("Failed to process image:", error);
-      return new Paragraph({
-        children: [new TextRun({ text: `[Image: ${image.alt || image.id}]`, italics: true, color: "888888" })],
-        alignment: AlignmentType.CENTER,
-        spacing: { after: 200 },
-      });
-    }
-  };
-
-  // Find image by ID
-  const getImage = (id: string): ImagePlaceholder | undefined => 
-    data.images?.find(img => img.id === id);
-
   const doc = new Document({
     sections: [
       {
@@ -82,9 +29,6 @@ export async function generateDocx(data: CaseStudyData): Promise<Buffer> {
             alignment: AlignmentType.CENTER,
             spacing: { before: 400, after: 200 },
           }),
-          
-          // Cover Image
-          getImage('page1_cover') && createImageParagraph(getImage('page1_cover')!),
           
           // Introduction
           new Paragraph({
@@ -140,11 +84,6 @@ export async function generateDocx(data: CaseStudyData): Promise<Buffer> {
             text: data.problem.overview,
             spacing: { after: 200 },
           }),
-          
-          // Problem Images
-          getImage('page2_problem1') && createImageParagraph(getImage('page2_problem1')!),
-          getImage('page2_problem2') && createImageParagraph(getImage('page2_problem2')!),
-          
           ...data.problem.points.map(p => new Paragraph({ text: `• ${p}`, spacing: { after: 100 } })),
 
           // CIS Approach
@@ -186,11 +125,6 @@ export async function generateDocx(data: CaseStudyData): Promise<Buffer> {
             spacing: { before: 400, after: 200 },
           }),
           new Paragraph({ text: data.solution.overview, spacing: { after: 200 } }),
-          
-          // Solution Images
-          getImage('page3_solution1') && createImageParagraph(getImage('page3_solution1')!),
-          getImage('page3_solution2') && createImageParagraph(getImage('page3_solution2')!),
-          
           new Paragraph({ children: [new TextRun({ text: "This application is integrated with the following:", bold: true })] }),
           ...data.solution.points.map(p => new Paragraph({ text: `• ${p}`, spacing: { after: 100 } })),
           new Paragraph({ children: [new TextRun({ text: "Order channels supported:", bold: true })], spacing: { before: 200 } }),
@@ -213,11 +147,6 @@ export async function generateDocx(data: CaseStudyData): Promise<Buffer> {
             ],
             spacing: { before: 400, after: 200 },
           }),
-          
-          // Benefits Images
-          getImage('page4_benefits') && createImageParagraph(getImage('page4_benefits')!),
-          getImage('page4_results') && createImageParagraph(getImage('page4_results')!),
-          
           ...data.benefits.map(b => new Paragraph({ text: `✓ ${b}`, spacing: { after: 100 } })),
 
           // Results

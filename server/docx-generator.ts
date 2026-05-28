@@ -16,7 +16,7 @@ import {
   ImageRun,
   convertInchesToTwip
 } from "docx";
-import { CaseStudyData, ImagePlaceholder } from "../src/types";
+import type { CaseStudyData, ImagePlaceholder } from "../src/types";
 
 export async function generateDocx(data: CaseStudyData): Promise<Buffer> {
   // Helper to convert base64 to Uint8Array

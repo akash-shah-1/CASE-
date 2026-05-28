@@ -1,5 +1,5 @@
 import { VercelRequest, VercelResponse } from "@vercel/node";
-import { generateImage } from "../server/gemini";
+import { generateImage } from "../server/gemini.js";
 
 export default async function handler(
   req: VercelRequest,

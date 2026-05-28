@@ -1,5 +1,5 @@
 import { GoogleGenAI, Type } from "@google/genai";
-import { CaseStudyData } from "../src/types";
+import type { CaseStudyData } from "../src/types";
 import * as dotenv from "dotenv";
 
 // Load .env before anything else

@@ -1,5 +1,5 @@
 import { VercelRequest, VercelResponse } from "@vercel/node";
-import { generateDocx } from "../server/docx-generator";
+import { generateDocx } from "../server/docx-generator.js";
 
 export default async function handler(
   req: VercelRequest,

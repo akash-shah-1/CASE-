@@ -67,3 +67,94 @@
 .light-scroll::-webkit-scrollbar-thumb:hover {
   background: #F25B24;
 }
+
+/* ============================================================
+   PRINT / PDF EXPORT STYLES
+   Applied when body has .printing-pdf class via window.print()
+   ============================================================ */
+@media print {
+  /* Force A4, no margins — browser handles page breaks */
+  @page {
+    size: A4 portrait;
+    margin: 0;
+  }
+
+  html,
+  body,
+  #root {
+    width: 210mm;
+    height: auto !important;
+    min-height: auto !important;
+    overflow: visible !important;
+    background: white !important;
+  }
+
+  body.printing-pdf {
+    margin: 0 !important;
+  }
+
+  /* Hide everything by default */
+  body.printing-pdf * {
+    visibility: hidden;
+  }
+
+  /* Print must escape the app's h-screen / overflow scroll containers. */
+  body.printing-pdf #root,
+  body.printing-pdf #root > div,
+  body.printing-pdf #root > div > div,
+  body.printing-pdf .pdf-print-workspace,
+  body.printing-pdf .pdf-print-pages {
+    display: block !important;
+    width: 210mm !important;
+    height: auto !important;
+    min-height: auto !important;
+    max-width: none !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    overflow: visible !important;
+    background: white !important;
+  }
+
+  /* Show only the scroll-mode page wrappers and their children */
+  body.printing-pdf .pdf-print-workspace,
+  body.printing-pdf .pdf-print-pages,
+  body.printing-pdf .pdf-print-page,
+  body.printing-pdf .pdf-print-page * {
+    visibility: visible;
+  }
+
+  /* Each page fills exactly one A4 sheet */
+  body.printing-pdf .pdf-print-page {
+    position: relative;
+    width: 210mm;
+    min-height: 297mm;
+    padding: 10mm 12mm;
+    margin: 0 !important;
+    box-sizing: border-box;
+    background: white !important;
+    border: 0 !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+    page-break-after: always;
+    break-after: page;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  /* Last page — no forced break after */
+  body.printing-pdf .pdf-print-page:last-child {
+    page-break-after: avoid;
+    break-after: avoid;
+  }
+
+  /* Hide all UI chrome — sidebar, topbar, nav buttons */
+  body.printing-pdf #root > * > *:first-child,
+  body.printing-pdf [class*="sticky"],
+  body.printing-pdf [class*="top-0"],
+  body.printing-pdf button,
+  body.printing-pdf [class*="slider"],
+  body.printing-pdf [class*="ChevronLeft"],
+  body.printing-pdf [class*="ChevronRight"] {
+    display: none !important;
+  }
+}

@@ -350,88 +350,25 @@ export function CaseStudyPreview({ data, onChangeData, onDownload, onReset, isDo
     if (activePage < 4) setActivePage(prev => prev + 1);
   };
 
-  // PDF Export via Puppeteer on the server — pixel-perfect, same as browser view
+  // PDF Export — uses browser's native print engine (works everywhere, no server needed)
   const handleExportPdf = async () => {
     setIsExportingPdf(true);
     try {
-      // Switch to scroll so all 4 page divs are in the DOM
+      // Switch to scroll so all 4 pages are in the DOM
       const prevMode = viewMode;
       setViewMode('scroll');
       await new Promise(r => setTimeout(r, 350));
 
-      // Collect all 4 page elements
-      const pageEls = [1, 2, 3, 4].map(n => pageRefs.current[n]).filter(Boolean) as HTMLDivElement[];
-      if (pageEls.length === 0) throw new Error("Page elements not found");
+      // Add a body class that @media print CSS uses to hide everything except pages
+      document.body.classList.add('printing-pdf');
 
-      // Grab all stylesheets from the document (Tailwind compiled CSS)
-      const styleSheets = Array.from(document.styleSheets)
-        .map(sheet => {
-          try {
-            return Array.from(sheet.cssRules).map(r => r.cssText).join('\n');
-          } catch { return ''; }
-        })
-        .join('\n');
+      window.print();
 
-      // Build a self-contained HTML with one section per A4 page
-      // Each page gets @page break-after so Puppeteer splits them correctly
-      const pagesHtml = pageEls.map((el, i) => `
-        <div class="pdf-page" style="
-          width: 794px;
-          min-height: 1123px;
-          background: white;
-          padding: 40px;
-          box-sizing: border-box;
-          page-break-after: ${i < pageEls.length - 1 ? 'always' : 'auto'};
-          break-after: ${i < pageEls.length - 1 ? 'page' : 'auto'};
-          font-family: ui-sans-serif, system-ui, sans-serif;
-          color: #1e293b;
-        ">
-          ${el.innerHTML}
-        </div>
-      `).join('');
-
-      const fullHtml = `<!DOCTYPE html>
-<html>
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=794" />
-  <style>
-    * { box-sizing: border-box; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-    body { margin: 0; padding: 0; background: white; }
-    @page { size: A4; margin: 0; }
-    ${styleSheets}
-  </style>
-</head>
-<body>
-  ${pagesHtml}
-</body>
-</html>`;
-
-      const response = await fetch('/api/export-pdf', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ html: fullHtml }),
-      });
-
-      if (!response.ok) {
-        const err = await response.json();
-        throw new Error(err.error || 'PDF export failed');
-      }
-
-      const blob = await response.blob();
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `${data.title.replace(/\s+/g, '_')}_CaseStudy.pdf`;
-      document.body.appendChild(a);
-      a.click();
-      URL.revokeObjectURL(url);
-      document.body.removeChild(a);
-
+      // Cleanup after print dialog closes
+      document.body.classList.remove('printing-pdf');
       setViewMode(prevMode);
     } catch (err: any) {
       console.error('PDF export failed:', err);
-      alert(`PDF export failed: ${err.message}`);
     } finally {
       setIsExportingPdf(false);
     }
@@ -1236,7 +1173,7 @@ export function CaseStudyPreview({ data, onChangeData, onDownload, onReset, isDo
       </div>
 
       {/* Pages Workspace View Container */}
-      <div className="flex-1 overflow-y-auto p-4 md:p-8 flex flex-col items-center justify-start">
+      <div className="pdf-print-workspace flex-1 overflow-y-auto p-4 md:p-8 flex flex-col items-center justify-start">
         {viewMode === 'slider' ? (
           <div className="flex flex-col items-center gap-6 w-full max-w-[760px] my-auto py-2">
             
@@ -1286,28 +1223,28 @@ export function CaseStudyPreview({ data, onChangeData, onDownload, onReset, isDo
           </div>
         ) : (
           /* Scroll Mode stacked sheets layout */
-          <div ref={containerRef} className="flex flex-col items-center gap-8 w-full max-w-[760px] py-4">
+          <div ref={containerRef} className="pdf-print-pages flex flex-col items-center gap-8 w-full max-w-[760px] py-4">
             <div
               ref={el => { pageRefs.current[1] = el; }}
-              className="w-full bg-white text-slate-800 shadow-2xl rounded-1xl p-6 md:p-10 border border-slate-250 flex flex-col"
+              className="pdf-print-page w-full bg-white text-slate-800 shadow-2xl rounded-1xl p-6 md:p-10 border border-slate-250 flex flex-col"
             >
               {renderPage1()}
             </div>
             <div
               ref={el => { pageRefs.current[2] = el; }}
-              className="w-full bg-white text-slate-800 shadow-2xl rounded-1xl p-6 md:p-10 border border-slate-250 flex flex-col"
+              className="pdf-print-page w-full bg-white text-slate-800 shadow-2xl rounded-1xl p-6 md:p-10 border border-slate-250 flex flex-col"
             >
               {renderPage2()}
             </div>
             <div
               ref={el => { pageRefs.current[3] = el; }}
-              className="w-full bg-white text-slate-800 shadow-2xl rounded-1xl p-6 md:p-10 border border-slate-250 flex flex-col"
+              className="pdf-print-page w-full bg-white text-slate-800 shadow-2xl rounded-1xl p-6 md:p-10 border border-slate-250 flex flex-col"
             >
               {renderPage3()}
             </div>
             <div
               ref={el => { pageRefs.current[4] = el; }}
-              className="w-full bg-white text-slate-800 shadow-2xl rounded-1xl p-6 md:p-10 border border-slate-250 flex flex-col"
+              className="pdf-print-page w-full bg-white text-slate-800 shadow-2xl rounded-1xl p-6 md:p-10 border border-slate-250 flex flex-col"
             >
               {renderPage4()}
             </div>

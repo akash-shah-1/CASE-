@@ -1,3 +1,17 @@
 {
-  "buildCommand": "npm run build"
+  "buildCommand": "npm run build",
+  "outputDirectory": "dist",
+  "rewrites": [
+    { "source": "/api/generate", "destination": "/api/generate" },
+    { "source": "/api/generate-image", "destination": "/api/generate-image" },
+    { "source": "/api/generate-images", "destination": "/api/generate-images" },
+    { "source": "/api/download", "destination": "/api/download" },
+    { "source": "/(.*)", "destination": "/index.html" }
+  ],
+  "functions": {
+    "api/generate.ts": { "maxDuration": 60 },
+    "api/generate-image.ts": { "maxDuration": 60 },
+    "api/generate-images.ts": { "maxDuration": 60 },
+    "api/download.ts": { "maxDuration": 30 }
+  }
 }

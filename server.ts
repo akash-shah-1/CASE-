@@ -80,7 +80,7 @@ async function startServer() {
       await page.setViewport({ width: 794, height: 1123, deviceScaleFactor: 2 });
 
       // Set the full HTML directly — includes all inlined styles from the frontend
-      await page.setContent(html, { waitUntil: "networkidle0", timeout: 30000 });
+      await page.setContent(html, { waitUntil: "domcontentloaded", timeout: 30000 });
 
       const pdfBuffer = await page.pdf({
         format: "A4",
